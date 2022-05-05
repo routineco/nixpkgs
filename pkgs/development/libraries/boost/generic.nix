@@ -85,12 +85,13 @@ let
                   # required on mips; see 61d9f201baeef4c4bb91ad8a8f5f89b747e0dfe4
                   (stdenv.hostPlatform.isMips && versionAtLeast version "1.79")) [
     "address-model=${toString stdenv.hostPlatform.parsed.cpu.bits}"
-    "architecture=${if stdenv.hostPlatform.isMips64
-                    then if versionOlder version "1.78" then "mips1" else "mips"
-                    else if stdenv.hostPlatform.parsed.cpu.name == "s390x" then "s390x"
-                    else toString stdenv.hostPlatform.parsed.cpu.family}"
-    "binary-format=${toString stdenv.hostPlatform.parsed.kernel.execFormat.name}"
-    "target-os=${toString stdenv.hostPlatform.parsed.kernel.name}"
+    "architecture=${toString stdenv.hostPlatform.parsed.cpu.family}"
+    "binary-format=${if toString stdenv.hostPlatform.parsed.kernel.execFormat.name == "macho"
+                     then "mach-o"
+                     else toString stdenv.hostPlatform.parsed.kernel.execFormat.name}"
+    "target-os=${if toString stdenv.hostPlatform.parsed.kernel.name == "ios"
+                 then "iphone"
+                 else toString stdenv.hostPlatform.parsed.kernel.name}"
 
     # adapted from table in boost manual
     # https://www.boost.org/doc/libs/1_66_0/libs/context/doc/html/context/architectures.html
