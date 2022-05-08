@@ -89,9 +89,6 @@ let
     "binary-format=${if toString stdenv.hostPlatform.parsed.kernel.execFormat.name == "macho"
                      then "mach-o"
                      else toString stdenv.hostPlatform.parsed.kernel.execFormat.name}"
-    "target-os=${if toString stdenv.hostPlatform.parsed.kernel.name == "ios"
-                 then "iphone"
-                 else toString stdenv.hostPlatform.parsed.kernel.name}"
 
     # adapted from table in boost manual
     # https://www.boost.org/doc/libs/1_66_0/libs/context/doc/html/context/architectures.html
@@ -100,7 +97,13 @@ let
            else if stdenv.hostPlatform.isMips32 then "o32"
            else if stdenv.hostPlatform.isMips64n64 then "n64"
            else "sysv"}"
-  ] ++ optional (link != "static") "runtime-link=${runtime-link}"
+  ] ++ optional (stdenv.hostPlatform != stdenv.buildPlatform && !stdenv.hostPlatform.isiOS)
+    # https://github.com/boostorg/build/issues/365
+    # set target os... but do not set it for iOS, because you end up having linker errors as shown here:
+    "target-os=${if toString stdenv.hostPlatform.parsed.kernel.name == "ios"
+                 then "ios"
+                 else toString stdenv.hostPlatform.parsed.kernel.name}"
+    ++ optional (link != "static") "runtime-link=${runtime-link}"
     ++ optional (variant == "release") "debug-symbols=off"
     ++ optional (toolset != null) "toolset=${toolset}"
     ++ optional (!enablePython) "--without-python"
@@ -236,7 +239,8 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     runHook preBuild
-    b2 ${b2Args}
+    echo == ./b2 ${b2Args}
+    ./b2 ${b2Args}
     runHook postBuild
   '';
 
