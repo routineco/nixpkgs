@@ -141,7 +141,7 @@ impure-cmds // appleSourcePackages // chooseLibs // {
   iosSdkPkgs = callPackage ../os-specific/darwin/xcode/sdk-pkgs.nix {
     buildIosSdk = buildPackages.darwin.iosSdkPkgs.sdk;
     targetIosSdkPkgs = targetPackages.darwin.iosSdkPkgs;
-    inherit (pkgs.llvmPackages) clang-unwrapped;
+    inherit (pkgs.llvmPackages);
   };
 
   iproute2mac = callPackage ../os-specific/darwin/iproute2mac { };
